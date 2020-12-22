@@ -1,9 +1,29 @@
 <template>
   <div class="container">
-    <div class="my-5">
-      <inertia-link href="/user/create" class="btn btn-primary">
-        Create
-      </inertia-link>
+    <div class="my-5 row justify-content-between">
+      <div class="col">
+        <inertia-link href="/user/create" class="btn btn-primary">
+          Create
+        </inertia-link>
+      </div>
+
+      <div class="col-4">
+        <form @submit.prevent="submit">
+          <div class="input-group">
+            <input
+              type="text"
+              v-model="search"
+              class="form-control"
+              placeholder="Search..."
+            />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="submit">
+                Search
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <table class="table">
       <thead>
@@ -45,8 +65,16 @@ export default {
   components: {
     Pagination,
   },
-  props: ["users"],
+  props: ["users", "filter"],
+  data() {
+    return {
+      search: this.filter,
+    };
+  },
   methods: {
+    submit() {
+      this.$inertia.get(`/user?search=${this.search}`);
+    },
     destroy(id) {
       if (confirm("Are you sure to delete?")) {
         this.$inertia.delete(`/user/${id}`);

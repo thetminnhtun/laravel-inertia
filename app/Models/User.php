@@ -45,4 +45,12 @@ class User extends Authenticatable
     {
         $this->attributes['password'] = Hash::needsRehash($password) ? Hash::make($password) : $password;
     }
+
+    public function scopeFilter($query, $filter)
+    {
+        $query->when($filter, function ($query, $search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%');
+        });
+    }
 }
