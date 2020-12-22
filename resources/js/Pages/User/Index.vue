@@ -16,7 +16,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.id">
+        <tr v-for="user in users.data" :key="user.id">
           <td>{{ user.id }}</td>
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
@@ -35,11 +35,16 @@
         </tr>
       </tbody>
     </table>
+    <pagination :links="users.links"></pagination>
   </div>
 </template>
 
 <script>
+import Pagination from "../../components/Pagination";
 export default {
+  components: {
+    Pagination,
+  },
   props: ["users"],
   methods: {
     destroy(id) {
