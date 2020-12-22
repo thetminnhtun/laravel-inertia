@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -15,10 +16,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-
         return Inertia::render('User/Index', [
-            'users' => $users
+            'users' => User::all(),
         ]);
     }
 
@@ -40,6 +39,12 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -58,7 +63,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         return Inertia::render('User/Show', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -71,7 +76,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return Inertia::render('User/Edit', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -84,11 +89,17 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => ['required', 'email', 'max:50', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|min:6',
         ]);
+
+        $user->update($request->only('name', 'email'));
+
+        if ($request->filled('password')) {
+            $user->update($request->only('password'));
+        }
 
         return redirect()->route('user.index');
     }
